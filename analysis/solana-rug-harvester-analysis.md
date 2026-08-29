@@ -434,7 +434,10 @@ rent is locked up, so the burn-and-close loop has to run continuously.
 
 ---
 
-## 5b. `Fs9RN3wA…` in full — the best-run of the three
+## 5b. `Fs9RN3wA…` (aka **gNfR**) in full — the best-run of the three
+
+> Trackers that abbreviate by trailing characters render
+> `Fs9RN3wAsuJKPbTmtX5eek1bhW5krNH8RkQxkFAtgNfR` as **gNfR**. Same wallet.
 
 Its durable nonce account is `5FX8Ymc8KTcMW4NDQns9Toyei9irLKeWVvmCLoQhrgAd`, which gives the complete
 harvest log the same way m3mx's does. **200 attempts over 8.89 days.**
