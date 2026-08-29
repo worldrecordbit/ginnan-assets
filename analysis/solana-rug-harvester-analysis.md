@@ -502,8 +502,12 @@ can't be isolated from a signature list where 980 of 1,000 succeed, but they dem
 
 Native went 4,874,011,815 → 3,941,440,759 over ~9,558s — **8.43 SOL/day of burn against a 3.94 SOL
 balance**, roughly 11 hours of runway. At 4,874 buys/day × 2,074,080 lamports of Token-2022 ATA rent that
-is **10.1 SOL/day of rent float**, so the burn is essentially all rent and the burn-and-close loop must be
-batched and continuous. kiwi's real limit is not fee budget but rent recycling throughput.
+is **10.1 SOL/day of rent float**, so the burn is essentially all rent.
+
+**Correction (see 5e): kiwi is not recycling that rent — it is accumulating it.** Direct measurement of
+its open account set shows ~179,712 live token accounts, which at 4,874 buys/day is ~37 days of
+accumulation with essentially no closing. The burn-and-close loop I inferred here does not exist at
+anything like the rate needed to offset it.
 
 ---
 
@@ -531,6 +535,52 @@ transactions simultaneously into a single slot**, so its "20 failures" are reall
 
 This is the clearest evidence in the dataset that the 74%/52.5% revert rates are a crowded auction, not
 independent bad luck — and that the surplus those reverts represent is going to block builders.
+
+---
+
+## 5e. Claim-book size and return on rent capital
+
+`getTokenAccountsByOwner` has no cursor and dies on these wallets. The working substitute is to partition:
+`getProgramAccounts` with a memcmp on the token account's **owner** field (offset 32) plus a memcmp on the
+**second byte of the mint** (offset 1) yields 256 disjoint, uniformly-sized buckets. Offset 0 cannot be
+used — the node special-cases it as the mint field and rejects anything but 32 bytes.
+
+Two independent kiwi buckets returned **703** and **701** accounts, which validates the uniformity
+assumption directly. Counts below are one or two buckets scaled ×256.
+
+| Wallet | Tokenkeg | Token-2022 | **Est. claims** | **Rent locked** | ± | 30d income | **Return on rent** |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| m3mx | 3,840 | 20,480 | **24,320** | 50.3 SOL | 10.3% | ~60 SOL | **119%/mo** |
+| Fs9RN3 | 7,680 | 14,336 | **22,016** | 45.4 SOL | 10.8% | ~90 SOL | **198%/mo** |
+| kiwi | — | 179,712 | **179,712** | **372.7 SOL** | 3.8% | ~20 SOL | **5%/mo** |
+
+Every kiwi account was exactly 2,074,080 lamports at 170 bytes — uniform ATA creation with no variation.
+(Fs9RN3 carries a handful of 182-byte / 2,157,600-lamport accounts, mints with a transfer-fee extension.)
+
+### The intuition is backwards
+
+**Fs9RN3 has the smallest claim book and the highest income.** kiwi holds **8× more claims than Fs9RN3 and
+earns 4.5× less.** Expressed as inventory per unit of output:
+
+| | claims per SOL of monthly income |
+|---|---:|
+| Fs9RN3 | **245** |
+| m3mx | 405 |
+| kiwi | **8,986** |
+
+kiwi is **37× less capital-efficient than Fs9RN3**. More claims does not mean more money — it means more
+capital immobilised as rent. What separates the operators is *which* pools they hold claims on and *when*
+they fire, not how many tickets they hold.
+
+That also reframes kiwi's position. Its ~20 SOL/30d of realised income sits on top of **372.7 SOL of
+working capital locked in rent**, growing at ~8.4 SOL/day net. It is running a large, capital-hungry
+accumulation that yields ~5%/month on the capital it ties up. Whether that is a deliberate long-horizon
+bet on a claim book that pays out later, or simply an unrecycled tail nobody is closing, the on-chain data
+cannot distinguish — but the capital cost is real and it is the largest single number in this analysis.
+
+**Caveat on the income column:** the 30-day figures are reported, not measured by me, except kiwi's, where
+an independent WSOL-balance measurement (+0.608 SOL/day ≈ 18 SOL/30d) reproduces the reported ~20 SOL
+closely. The claim counts and rent figures are measured.
 
 ---
 
