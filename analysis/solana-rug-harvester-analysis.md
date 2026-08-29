@@ -434,6 +434,106 @@ rent is locked up, so the burn-and-close loop has to run continuously.
 
 ---
 
+## 5b. `Fs9RN3wA…` in full — the best-run of the three
+
+Its durable nonce account is `5FX8Ymc8KTcMW4NDQns9Toyei9irLKeWVvmCLoQhrgAd`, which gives the complete
+harvest log the same way m3mx's does. **200 attempts over 8.89 days.**
+
+| | m3mx | **Fs9RN3** |
+|---|---:|---:|
+| Nonce account | `ED8oGfup…` | `5FX8Ymc8…` |
+| Harvest attempts/day | 122 | **22.5** |
+| **Hit rate** | **26%** | **52.5%** (105 / 200) |
+| Landed harvests/day | ~32 | ~11.8 |
+| Cost per miss | ~1.1M lamports | ~5.5M lamports |
+| Daily burn on misses | ~0.099 SOL | **~0.059 SOL** |
+| Total tx/day | not measured | **4,435** |
+| Reported 30d PnL | ~60 SOL | **~90 SOL** |
+
+Counts reconcile exactly: 105 successes + 95 failures = 200.
+
+**Fs9RN3 earns roughly 50% more than m3mx while firing five times less often.** It seeds enormously —
+4,435 transactions/day, of which only ~0.5% are harvest attempts — so it holds a far larger book of
+outstanding claims, then fires selectively against it. It pays 5× more per miss yet burns *less* per day,
+because it misses half as often. m3mx is the opposite build: a loose trigger with a cheap floor, spraying
+attempts into a 74% revert rate.
+
+Other findings:
+
+- **A fifth relay — FlashBlock** (`FLaSHR4Vv7sttd6TyDF4yR1bJyAxRwWKbohDytEMu3wL`), alongside Jito,
+  Astralane, Nozomi and NextBlock.
+- **Same threshold-revert mechanism.** In `5YS6C6Wc` the pool held 0.00336 SOL, unchanged before and
+  after. Nothing drained it; the min_out simply wasn't met. Tip rolled back, only the 5,511,064-lamport
+  fee paid.
+- **Failures arrive in bursts** — six reverts inside 128 seconds (gaps of 35s, 21s, 17s, 48s, 7s), all
+  Meteora 6002. One target hammered repeatedly. This matters for measurement: a 5.4-hour window of the
+  wallet implied 40 misses/day against the 8.89-day figure of 10.7. **Short samples badly overestimate.**
+
+---
+
+## 5c. `kiwiC4pg…` — fails on entry, not exit
+
+Structurally the odd one out. Over 1,000 consecutive transactions spanning 4.92 hours (**4,874 tx/day**):
+980 succeeded, 20 failed, and **all 20 carry error 6016 at instruction index 2 on a `Buy`**.
+
+6016 is `BuyMoreBaseAmountThanPoolReserves`, thrown from `constant_product.rs:21`. In `2sxGCXV2` the pool
+held **8,172 raw token units** and 0.000027 SOL, and kiwi asked for more tokens than existed. It already
+held 103,700,179 units of that mint, so this was a *reload* of an existing claim.
+
+That is a distinct strategy: rather than a fixed dust ticket, kiwi tries to sweep a dead pool's entire
+remaining token reserve and overshoots ~2% of the time. **m3mx and Fs9RN3 fail on the exit; kiwi fails on
+the entry.** No durable nonce appears in its failures — plain `recentBlockhash`, with a tip to
+`6rYLG55Q…` that rolls back on revert.
+
+### It does harvest — the balance trajectory settles it
+
+An earlier three-sample read here called kiwi "almost pure seeding." That was wrong. Its WSOL ATA
+`HTzW2E5H…` moves the other way:
+
+| ts 1788015342 | ts 1788024826 | Δ |
+|---:|---:|---:|
+| 11,066,137,053 | 11,132,916,205 | **+66,779,152** |
+
+**+0.608 SOL/day flowing in**, against buys that only ever debit it. The reported figure for kiwi is
+~20 SOL / 30 days = 0.67 SOL/day. Two independent measurements of the same number. The individual sells
+can't be isolated from a signature list where 980 of 1,000 succeed, but they demonstrably exist.
+
+### Rent throughput is the binding constraint
+
+Native went 4,874,011,815 → 3,941,440,759 over ~9,558s — **8.43 SOL/day of burn against a 3.94 SOL
+balance**, roughly 11 hours of runway. At 4,874 buys/day × 2,074,080 lamports of Token-2022 ATA rent that
+is **10.1 SOL/day of rent float**, so the burn is essentially all rent and the burn-and-close loop must be
+batched and continuous. kiwi's real limit is not fee budget but rent recycling throughput.
+
+---
+
+## 5d. They are racing each other — provably
+
+The three wallets are not working separate territory. Every one of kiwi's eight failure clusters
+coincides with the others in the same or an adjacent slot:
+
+| Slot | m3mx | Fs9RN3 | kiwi |
+|---|---|---|---|
+| **442634543** | FAIL 6040 | **SUCCESS** | FAIL ×3 |
+| 442642074 | FAIL 6040 | — | FAIL ×2 |
+| 442647353 | FAIL 6040 | — | FAIL ×2 |
+| 442647551 | FAIL 6040 | — | FAIL ×2 |
+| 442652928 | FAIL 6040 | +10 slots | FAIL ×3 |
+| 442657809 | FAIL (crash) | — | FAIL ×2 |
+| 442675993 | — | FAIL 6040 | FAIL ×3 |
+
+**Slot 442634543 is a resolved three-way race**: m3mx lost on slippage, kiwi lost three times on
+reserves, Fs9RN3 won. Same slot, same instant, same triggering event.
+
+Six of kiwi's eight clusters contain an m3mx failure. The two that do not (442675993, 442666908) fall
+after m3mx's sampled window, and 442675993 contains an Fs9RN3 failure instead. kiwi also fires **2–3
+transactions simultaneously into a single slot**, so its "20 failures" are really eight events.
+
+This is the clearest evidence in the dataset that the 74%/52.5% revert rates are a crowded auction, not
+independent bad luck — and that the surplus those reverts represent is going to block builders.
+
+---
+
 ## 6. What this is, plainly
 
 This is a **latency race against retail buyers who wander into rugged pools**. It is not arbitrage and it
