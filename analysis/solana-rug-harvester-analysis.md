@@ -1,10 +1,27 @@
-# Rugged-LP Harvesting: On-Chain Analysis of Three Solana Wallets
+# Rugged-LP Harvesting on Solana: Mechanism, Operators, and Market Structure
 
 **Date:** 2026-08-29
-**Method:** Full reconstruction of all 82 supplied transactions for `27HFmP7ccLadGswvQfvea4o3juLw75cPF4V6jWpHM3MX` ("m3mx") from Solana JSON-RPC
-(`getTransaction`), plus sampled reconstruction of `Fs9RN3wAsuJKPbTmtX5eek1bhW5krNH8RkQxkFAtgNfR` and `kiwiC4pg5mC4N5AhpXc4Av3V6oV7Sn2p3CqB7NeHbJJ`. Every figure below is
-derived from `pre/postBalances` and `pre/postTokenBalances` deltas — never from instruction log names,
-which are misleading here (see "Pool orientation" below).
+
+**Scope:** How dead liquidity pools on PumpSwap and Meteora DAMM v2 are drained of retail SOL, who runs the
+operation, and what the competition between them looks like. Three wallets are profiled in depth; six
+operators are identified in total.
+
+**Method:**
+
+- Full reconstruction of all 82 supplied transactions for `27HFmP7ccLadGswvQfvea4o3juLw75cPF4V6jWpHM3MX`
+  ("m3mx") from Solana JSON-RPC `getTransaction`.
+- Complete harvest logs for `27HFmP7ccLadGswvQfvea4o3juLw75cPF4V6jWpHM3MX` and
+  `Fs9RN3wAsuJKPbTmtX5eek1bhW5krNH8RkQxkFAtgNfR` recovered through their durable-nonce accounts, which only
+  contested transactions advance — 100 and 200 attempts respectively, wins and losses.
+- 1,000 consecutive transactions analysed for `kiwiC4pg5mC4N5AhpXc4Av3V6oV7Sn2p3CqB7NeHbJJ`, plus a
+  WSOL-balance measurement of its harvest income.
+- Claim-book sizes and rent capital for six operators, measured via `getProgramAccounts` partitioned into
+  256 uniform buckets and validated against two independent buckets.
+- Holder enumeration of a harvested pool to establish the competitor population.
+
+Every figure is derived from `pre/postBalances` and `pre/postTokenBalances` deltas — never from instruction
+log names, which are misleading here (see "Pool orientation" below). Inferences later disproved by
+measurement are left in place and marked as corrections rather than silently revised.
 
 **All addresses, mints and signatures in this document are written in full and unabbreviated**, so every
 identifier can be pasted directly into an explorer or an RPC call without lookup.
@@ -13,8 +30,8 @@ identifier can be pasted directly into an explorer or an RPC call without lookup
 
 ## 1. Answer in one paragraph
 
-All three wallets run the same business: **they are not trading tokens, they are draining the SOL out of
-dead liquidity pools.** They scatter sub-cent dust buys across every newly-migrated pool, which leaves them
+Every operator identified here runs the same business: **they are not trading tokens, they are draining the
+SOL out of dead liquidity pools.** They scatter sub-cent dust buys across every newly-migrated pool, which leaves them
 holding a token position in pools that later get rugged. When a pool is rugged the LP pulls the SOL but the
 *token* side of the vault is left almost empty too — typically 1–300 raw units. That tiny residual reserve is
 the whole game: under the constant-product curve, anyone holding a meaningful token balance can now sell into
