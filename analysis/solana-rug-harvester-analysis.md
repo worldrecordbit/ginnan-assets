@@ -248,6 +248,106 @@ figure it was rejecting is the pool's 9,721,261-lamport WSOL reserve. The orient
 
 ---
 
+## 4c. The big wins, and the fee-sizing rule
+
+Three large harvests, fully decoded. My reconstruction reproduces the reported USD fee figures to within
+$0.02, which pins the SOL price at each date and validates the decoding.
+
+| | USWR | RICO | TripleP |
+|---|---:|---:|---:|
+| Mint | `6Rrm9FX3…` | `gtdwpNQC…` | `B5QQ7YPf…` |
+| Harvest sig | `5mEeqRHpdM` | `ajAeRdQPkL` | `4yoaKJVVjE` |
+| Pool token reserve before | **4 raw units** | **477 raw units** | 380,327 raw units |
+| Tokens sold ÷ reserve | 1,008.8× | 1,008.5× | 99.9× |
+| **SOL captured** | **99.90%** | **99.90%** | **99.01%** |
+| Gross out | 37.772416 SOL | 27.907139 SOL | 14.872179 SOL |
+| Priority fee | 0.320000001 | 0.326399901 | 0.320000001 |
+| **Builder tip** | **4.000000 (Nozomi)** | **0** | **4.000000 (Nozomi)** |
+| **Net** | **+33.452 SOL** | **+27.581 SOL** | **+10.552 SOL** |
+| All-in cost | 11.44% | 1.17% | 29.05% |
+
+Combined: **80.552 SOL gross → +71.585 SOL net.**
+
+### The 15% rule is real and exact
+
+Measuring priority fee and tip as a share of gross across all 32 sells produces sharp clusters, not a
+spread:
+
+| fee % | tip % | Count | Example |
+|---:|---:|---:|---|
+| 15.01–15.02 | 5.00–5.01 | 4 | `4h8WT3md6r` |
+| 15.32–15.36 | 0 | 6 | `2D9KMBcuqd` |
+| 22.02–22.46 | 0 or 10.01 | 5 | `5dsjYXL7x7` |
+| 12.01 | 5.01 | 2 | `5w5VWVPbbo` |
+| 1.00–1.50 | 5.00 | 4 | `2wZawxkYA5` |
+| ~0.01 | 45.98–46.29 | 6 | `2y7LHLLcFL` |
+
+**A priority fee of exactly 15% of the harvest, paired with a tip of exactly 5%, is a hard-coded rung** —
+15.01, 15.02, 15.02, 15.01 against 5.01, 5.01, 5.01, 5.00. It is not the only rung; the ladder also has
+settings at ~1%, 12%, 16%, 22% and 26%, and a tip-only mode at ~46%. But the 15/5 rung is exactly as
+described.
+
+### The cap is real, but it is a SOL ceiling, not a dollar ceiling
+
+On the three big wins the priority fee stops far below 15%: 15% of USWR's harvest would have been 5.67 SOL,
+and they paid 0.32. Two of the three paid **byte-identical** priority fees of `320,000,001` lamports and
+**byte-identical** tip instructions transferring `4,000,000,000` lamports.
+
+So the ceiling is a **flat 0.32 SOL priority fee**, which reads as $20.91 / $21.66 / $24.51 only because SOL
+happened to be $65–75 on those dates. A dollar-denominated cap would have produced three different lamport
+amounts; it produced the same one twice.
+
+### The correction that matters: the tip is the real bid
+
+When the fee ceiling binds, they do not stop bidding — they **add a flat 4.0 SOL Nozomi tip**, 12.5× the
+priority fee.
+
+| | Accounted as "network fee" | Actual tip paid |
+|---|---:|---:|
+| USWR | $21.66 | **$270.73** |
+| RICO | $24.53 | $0 |
+| TripleP | $20.92 | **$261.41** |
+| **Total** | **$67.11** | **$532.14** |
+
+Solscan's "network fee" column shows only the priority fee; a builder tip is an ordinary transfer
+instruction inside the transaction and does not appear there. Reading the fee column alone understates the
+execution cost of these three trades by **8×**. The "avoid unnecessary waste" reading is inverted: the
+0.32 SOL ceiling is not restraint, it is a switch from the metered channel to the flat-rate one.
+
+RICO is the counter-example that proves it is a decision, not a constant: same 0.32 SOL fee class, no tip
+at all, 1.17% all-in.
+
+### Grading the second hypothesis set
+
+| # | Hypothesis | Verdict |
+|---|---|---|
+| 1 | If MC drops ~10× below the last dust buy, buy more dust | **Right in direction, wrong in magnitude and reason** — see below |
+| 2 | If the sucker buys at a much higher price, raise the fee | **Right** — the fee scales with the harvest, though as a percentage, not off a price ratio |
+| 3 | Priority fee = 15% of the SOL the sucker put in | **Confirmed exactly**, with a 5% tip alongside |
+| 4 | Cap the fee (~$20–25) to avoid waste | **Confirmed as a flat 0.32 SOL ceiling** — but the bid moves to a 4 SOL tip, so it is not a saving |
+
+**On #1.** TripleP's second dust buy (`2VFXEgciZ9`) went into a pool holding **0.00188 SOL** — a full rug,
+not a 10× drawdown. And the purpose is not averaging down. Compare what the same 20,000-lamport ticket buys:
+
+| | Pool state | Tokens received | **Share of pool** |
+|---|---|---:|---:|
+| USWR buy (healthy pool) | 345.5 SOL | 8,415,597 raw | 0.0000058% |
+| TripleP buy #2 (rugged pool) | 0.00188 SOL | 2,361,606 raw | **1.05%** |
+
+A post-rug dust buy is roughly **180,000× more token-efficient per lamport**. That is the reason to re-buy —
+not to lower an average entry, but because the claim on the pool gets vastly cheaper once it is dead. The
+trigger is the rug itself.
+
+### One data-quality note
+
+The transaction listed as the TripleP sell, `5ZNfsjAytk…`, is **a different mint** —
+`8wfPHNKEpqKwmiEZAsDEhtX4KkpULX21heEdPVgq9M4h`, harvested 2026-08-27 for 0.559 SOL. TripleP's actual
+harvest is `4yoaKJVVjE…` (2026-06-07, 14.872 SOL), which is the one that matches the quoted $971.95 and
+$20.921. The `5ZNfsjAytk` transaction is itself a clean instance of the 15%/5% rung: fee 83,947,710 =
+15.01% of gross, tip 27,982,569 = 5.00%, paid to Astralane.
+
+---
+
 ## 5. The other two wallets
 
 These are **the same strategy at a completely different point on the frequency/size curve**. m3mx is 82
@@ -323,6 +423,7 @@ thousands of dust buys and recycle ATA rent continuously just to keep the claims
 - `data/m3mx-transactions.tsv` — all 82 reconstructed transactions, 18 columns (see `data/schema.txt`).
 - `data/other-wallets-samples.tsv` — the 6 sampled transactions from `Fs9RN3wA…` and `kiwiC4pg…`.
 - `data/harvest-attempts.tsv` — hit-rate sample from the durable nonce account.
+- `data/big-wins.tsv` — the USWR / RICO / TripleP legs, decoded.
 - `data/schema.txt` — column definitions.
 
 Every row was derived from raw `getTransaction` output; nothing is inferred from a block explorer's
