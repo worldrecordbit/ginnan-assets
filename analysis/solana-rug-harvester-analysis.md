@@ -1,10 +1,13 @@
 # Rugged-LP Harvesting: On-Chain Analysis of Three Solana Wallets
 
 **Date:** 2026-08-29
-**Method:** Full reconstruction of all 82 supplied transactions for `27HFmP7c…` ("m3mx") from Solana JSON-RPC
-(`getTransaction`), plus sampled reconstruction of `Fs9RN3wA…` and `kiwiC4pg…`. Every figure below is
+**Method:** Full reconstruction of all 82 supplied transactions for `27HFmP7ccLadGswvQfvea4o3juLw75cPF4V6jWpHM3MX` ("m3mx") from Solana JSON-RPC
+(`getTransaction`), plus sampled reconstruction of `Fs9RN3wAsuJKPbTmtX5eek1bhW5krNH8RkQxkFAtgNfR` and `kiwiC4pg5mC4N5AhpXc4Av3V6oV7Sn2p3CqB7NeHbJJ`. Every figure below is
 derived from `pre/postBalances` and `pre/postTokenBalances` deltas — never from instruction log names,
 which are misleading here (see "Pool orientation" below).
+
+**All addresses, mints and signatures in this document are written in full and unabbreviated**, so every
+identifier can be pasted directly into an explorer or an RPC call without lookup.
 
 ---
 
@@ -36,19 +39,20 @@ of how much SOL is in there. That constant is visibly hard-coded: 18 of the 32 s
 `tokens_sold / base_reserve` ratio of **1002.0x**, and their capture rate is **99.90%** to four significant
 figures every single time.
 
-```
-sig         mint        tokens_sold/base_reserve   pool SOL captured
-15dy6vomK6  3FEiU97Nj5          1002.1x                 99.90%
-HoEzpWbNHD  G9Ubyair6L          1002.0x                 99.90%
-4k6CGkEVgP  GTvnzEnY7x          1002.0x                 99.90%
-ddpwvc6QS4  BHsc52EvkM          1002.0x                 99.90%
-3KBGrGv5Ym  HoNNWj6SVi          1002.0x                 99.90%
-  … 13 more identical …
-```
+| Signature | Mint | tokens_sold ÷ base_reserve | Pool SOL captured |
+|---|---|---:|---:|
+| `15dy6vomK671PLNbfLYNYApde9sqodwa8yXY5Qc7kzyGCDq6diQwffYzNS1PhJ8MD8Jqw5fDHx7ZCnvryfmxqHM` | `3FEiU97Nj5NrXiw1Fm5oys6kDNjgGbqBp9HzCkqtNJKi` | 1002.1x | 99.90% |
+| `HoEzpWbNHDUGYsoMaxE4XzWmsenG92SjGoz1i4vKhD9ucifQSjExCT8ydEY9m2P7xFFXMSBx1ozp8evcqyCoR6g` | `G9Ubyair6LcaLntEQoXU7AWHdht4VCk7ZH7TcJsnvNA2` | 1002.0x | 99.90% |
+| `4k6CGkEVgPm2PZXh3EUKfFdFzwpX2yB4ZiqstAPB4CVEyg3wdjwvMHKfHLqNE6usAAHWaygTZAvNFgD3FSQjsH8e` | `GTvnzEnY7xyRKsG82M4CeU143VHKhgme2kPyLwRHtrBz` | 1002.0x | 99.90% |
+| `ddpwvc6QS4KzZu8864FiMRYWV3vk5b1MpUjnudjnL6mwiBieMh92zYe1Sp72yWFmWMswUBGgXyhWbTh1w71NPZi` | `BHsc52EvkMcB5rf6iK41VMiZTPSFaenwSSFrPZ1otQ9e` | 1002.0x | 99.90% |
+| `3KBGrGv5YmvSn5YL5X1UWt6VtLuM9ie5XLmsNf1NpcUiHmWb2LhQuJNetEGTxgpP75WPECThBkgGj2JwXujKvQhH` | `HoNNWj6SViNTQYTUMvTrS9Sh7cXN1e83Z1gTvwErw37E` | 1002.0x | 99.90% |
+
+13 further sells land on the same constant; all 32 are in `data/m3mx-transactions.tsv` with full
+signatures, mints and pool addresses.
 
 The absolute size of the sell is irrelevant and often absurdly small in percentage terms. In
-`3Avz5tFCBk` they sold **999 raw units** — 0.00055% of their token holding — and took 0.1806 SOL out of a
-0.1813 SOL pool. In `4RixEoKLTD` the pool's token reserve was literally **1 raw unit**; selling 999 units
+`3Avz5tFCBk1J5h8JDRLN9fVjdf42KLcrGvR9Lr8YpxiwN5kX7fWFx3MgNwkX2BSShn5DgzpyjMzp1w7jF23YhWdP` they sold **999 raw units** — 0.00055% of their token holding — and took 0.1806 SOL out of a
+0.1813 SOL pool. In `4RixEoKLTDukjMWoMcZ11RZZimiR7VYc5VfSJXKxZCi3co6QUKT8gxUSX5pq7FB56udAybc6h9q2yQjjGC7Q5QWj` the pool's token reserve was literally **1 raw unit**; selling 999 units
 returned 0.3167 SOL.
 
 ---
@@ -107,21 +111,21 @@ priority fee, the block-builder tip and the ATA rent in one figure. "SOL in" is 
 | Return on swap capital | ~5,016x net |
 | Return on total cost incl. fees/tips | 4.78x |
 
-**27 of 28 mints were profitable**, matching your note. The 28th (`ezoBXAN…`) is not a loss — it is an
+**27 of 28 mints were profitable**, matching your note. The 28th (`ezoBXANwRAa9dcsage2E54QvjYLmTgjuaYnaNFwpump`) is not a loss — it is an
 open position bought 0 seconds before the end of the window; its −0.002104 SOL is 0.00207 of recoverable
 ATA rent plus 0.0000296 of real cost.
 
 ### Reading the outliers
 
-- **`AxAK6rzR4J` (+1.2557 SOL)** — the largest single win, and a Meteora DAMM v2 pool rather than PumpSwap.
+- **`AxAK6rzR4JDo2Lqjy7N2wsrQKXedTAGArQeGrt2i9wnP` (+1.2557 SOL)** — the largest single win, and a Meteora DAMM v2 pool rather than PumpSwap.
   Captured 86.26% of a 1.536 SOL pool. Paid a 0.0663 SOL tip (5.1% of gross) to win it.
-- **`5JfAcKovuM` (+0.2065 SOL, 160.3 days)** — the most instructive row. Bought 2026-03-21, **burned and
-  closed the position 2026-03-31** to reclaim rent (tx `4reUng4DoT`), then re-bought the *same dead pool*
+- **`5JfAcKovuMwUL3eY2x6AynQb7dgR25MwCJQSj7C9fQt5` (+0.2065 SOL, 160.3 days)** — the most instructive row. Bought 2026-03-21, **burned and
+  closed the position 2026-03-31** to reclaim rent (tx `4reUng4DoTSHANdZ5H2YcRWY8T1ZFLahQTTbKw3kaXvFLMHYA73oVkops4m6uuU2JeLfJ573rhKUkxQeEyWzyCm`), then re-bought the *same dead pool*
   on Aug 19, Aug 21 and Aug 28, and harvested on Aug 28. The buy and the sell are in the **same block**.
   They keep a watchlist of dead pools open indefinitely.
-- **`2sNgrxbrBv` (5 sells)** — the same pool `4wPjJcfb` was milked **five separate times** at ~0.0469 SOL
+- **`2sNgrxbrBvRL3cje8p6PBvwzH8oJLtwkiBQKJuvyErCr` (5 sells)** — the same pool `4wPjJcfbPvTLCKUEPvJiqU5iVX5xaxxu6qSEAN99zE4P` was milked **five separate times** at ~0.0469 SOL
   each as a victim kept re-buying into it.
-- **`8jKZpYVJkL` (4.16% capture)** and the three Meteora rows at 25–27% — the cases where the sizing rule
+- **`8jKZpYVJkLhrsJcHym2BWUSYtUe3KFk9PnaLLjaCpump` (4.16% capture)** and the three Meteora rows at 25–27% — the cases where the sizing rule
   did *not* dominate the pool, so capture was partial. Still profitable, but these are the misses.
 
 ---
@@ -130,7 +134,7 @@ ATA rent plus 0.0000296 of real cost.
 
 ### Pool orientation is not fixed (a trap)
 In several PumpSwap pools **WSOL is the base mint**, so the program logs `Instruction: Sell` while the
-wallet *gains* tokens and *loses* WSOL (`4aKpMPLt`, `2wCm4nxU`, `o8KwwaCm`, `5JckDSVu`, and both kiwi
+wallet *gains* tokens and *loses* WSOL (`4aKpMPLtCjmAx6Mw479dReAwqeDtKGEG2N4rgpWJmG5fw9gToLW7JxMLfC1x2fw6Y1mGDqvevr1Z7ekemTwiVPWv`, `2wCm4nxUMrJFXYVVrgYzzVjjWcTqBJw8RxxgnvvuvDuT96AoDeSmdMKVUXQqbQ5VAa8mZmoAAZM3xgfD6MidQ8h3`, `o8KwwaCmzHnRxDg5wJML6hpFk3g4A7LQ5NDyJqK9eGRaWXTbAV6PqL9fAGDDjCi2ve2V6TLRHvkHXec3aVguYFo`, `5JckDSVu5uDnnZXyzFMVZhbCJTE4XV2nbZ3WjSiVE61qhfKwdBVxTHKhAQcHZfM2jDvZtMcshsNCP9fVBxhybvPE`, and both kiwi
 samples). Every direction in this analysis was determined from the wallet's own balance deltas. Anyone
 classifying these wallets by log string will get the buy/sell direction backwards on a large minority of
 transactions.
@@ -173,13 +177,13 @@ public mempool vs. private relay — chosen per transaction.
 ### Rent recycling
 m3mx holds a persistent WSOL ATA (`EMpzysJ72GYNYrVu4qP5uEgAnqWc6SBGbkqsQfn3ajX4`) so it never wraps/unwraps
 per trade. Token ATAs are created per mint (2,039,280 lamports for SPL, 2,074,080 for Token-2022) and
-reclaimed via `Burn` + `CloseAccount` when a position is written off — see `4reUng4DoT`, which recovered
+reclaimed via `Burn` + `CloseAccount` when a position is written off — see `4reUng4DoTSHANdZ5H2YcRWY8T1ZFLahQTTbKw3kaXvFLMHYA73oVkops4m6uuU2JeLfJ573rhKUkxQeEyWzyCm`, which recovered
 +2,034,080 lamports net. **This makes the true cost of a losing lottery ticket ~0.00003 SOL, not
 ~0.00205 SOL** — a ~70x difference that is what makes spraying thousands of tickets a day viable.
 
 ### Speed
-- `CtY7VfrU`: migration → dust buy → rug → harvest in **92 seconds**.
-- `B5zkJ2at`: a 152.42 SOL pool drained **31 seconds** after the dust buy.
+- `CtY7VfrUaHUA7h3sgjjVSmUw5kVEoPwyCB1Rv5ESgjgP`: migration → dust buy → rug → harvest in **92 seconds**.
+- `B5zkJ2at9h8mCo4WQeQv7ULNLojQDb8eJ7MiagoZAHsx`: a 152.42 SOL pool drained **31 seconds** after the dust buy.
 - Five mints show the buy and the sell in the **same block** (atomic reload-and-harvest).
 
 ---
@@ -203,7 +207,7 @@ Last 100 nonce-advancing transactions, spanning 19.7 hours:
 
 - **Hit rate: 26%.** ~122 attempts/day, ~32 landed harvests/day.
 - The reverts are unambiguous: the program computed a smaller output than the transaction's
-  `min_out` and rolled back. `2KmNyJb4` logs it explicitly — `Left: 9711535, Right: 10000000`. Someone
+  `min_out` and rolled back. `2KmNyJb4RL2TE1zBayiQ2Ly74vxQNiR5mh7W9wxdG4KpKquPx2h8VdGNbJmRzLPHK2FLoJSXoiJwKj5jQfbYNiDN` logs it explicitly — `Left: 9711535, Right: 10000000`. Someone
   else took the SOL first.
 
 ### Correction: most of these are threshold reverts, not lost races
@@ -211,12 +215,12 @@ Last 100 nonce-advancing transactions, spanning 19.7 hours:
 My first reading of these reverts — that a competitor reached the pool first — is **wrong for the two
 failures I actually opened**, and the correct explanation is more interesting.
 
-In `5CpN7rYZ` the pool's WSOL reserve is `2,262,876` lamports **both before and after** the failed
-transaction. Nobody drained it. Tracing the pool vault `B9kms7Bz…` through that slot confirms it: the
+In `5CpN7rYZiPYQ7h6rtWygGeHGe3zwRBGTZonsqKuVaViqSKxv6zKQuqNxvLNzsbbbeEsixe44nuK7AMNsfQ82o8p8` the pool's WSOL reserve is `2,262,876` lamports **both before and after** the failed
+transaction. Nobody drained it. Tracing the pool vault `B9kms7BzDeGYjP4MPwyiKYoE5Le5hjoWTZZMzV96Zjvq` through that slot confirms it: the
 next twelve transactions on the vault are all *inflows*. The pool simply never held enough SOL to satisfy
 the sell's `min_out`.
 
-`2KmNyJb4` logs the arithmetic outright — `Left: 9711535, Right: 10000000`. The pool held 0.0097 SOL; the
+`2KmNyJb4RL2TE1zBayiQ2Ly74vxQNiR5mh7W9wxdG4KpKquPx2h8VdGNbJmRzLPHK2FLoJSXoiJwKj5jQfbYNiDN` logs the arithmetic outright — `Left: 9711535, Right: 10000000`. The pool held 0.0097 SOL; the
 transaction demanded a minimum of 0.0100 SOL out. It missed by **3%**.
 
 So m3mx carries a **min_out floor of roughly 0.01 SOL** and fires its pre-signed sell on *any* detected
@@ -231,12 +235,12 @@ reverts. The lost-race share is unmeasured.
 ### What is actually triggering the false fires
 
 The inflows setting off m3mx's trigger are, in large part, **other harvesters seeding the same corpse**.
-Two transactions from that swarm on pool `3e7n5iYW…`:
+Two transactions from that swarm on pool `3e7n5iYW9vHkyuDZvadjs4ZtM5x95NL91wbrGcijcevz`:
 
 | Wallet | Sig | Fee | SOL in | Route | Notes |
 |---|---|---:|---:|---|---|
-| `FURrDAcbpH…` | `2vvnJZURpg` | 20,000 | 0.0001 | direct | holds a 6.42 SOL WSOL float |
-| `3C7dHgR53b…` | `2psakNhHEy` | 6,000 | 0.0001 | **Jupiter** | wraps and closes WSOL each time |
+| `FURrDAcbpHQVW3x4wzzNNKaJuQPqYN6aKHzbb211Dnzn` | `2vvnJZURpg6QehLbXcuG7LZfsSADsuqn6GkttnMF5bW9erAwrWVv4jsNi5kic9WZxGyVqAqjmBChZoigyt9u48og` | 20,000 | 0.0001 | direct | holds a 6.42 SOL WSOL float |
+| `3C7dHgR53bF3P2YSzaDaW57EZfh8CHu7uTen6eEEiuqe` | `2psakNhHEyYNFuJdHhgbUtSrSvV6UUP52uSt8CXodKcy3hUfNQu9BBYNPZHum7MZ4MWF6T3GV3dbx1jtftPi3jHa` | 6,000 | 0.0001 | **Jupiter** | wraps and closes WSOL each time |
 
 Both are dust buys of exactly **0.0001 SOL** — 5× m3mx's 0.00002 ticket — into a pool holding 0.0022 SOL.
 Neither is a harvest. They are claim-seeding, the same first leg m3mx runs, from at least two other
@@ -254,8 +258,8 @@ Two sampled failures:
 
 | Signature | Fee paid | Tip paid |
 |---|---:|---:|
-| `5CpN7rYZ…` (Meteora, 6002) | 1,000,001 lamports | **0** |
-| `2KmNyJb4…` (PumpSwap, 6040) | 1,189,782 lamports | **0** |
+| `5CpN7rYZiPYQ7h6rtWygGeHGe3zwRBGTZonsqKuVaViqSKxv6zKQuqNxvLNzsbbbeEsixe44nuK7AMNsfQ82o8p8` (Meteora, 6002) | 1,000,001 lamports | **0** |
+| `2KmNyJb4RL2TE1zBayiQ2Ly74vxQNiR5mh7W9wxdG4KpKquPx2h8VdGNbJmRzLPHK2FLoJSXoiJwKj5jQfbYNiDN` (PumpSwap, 6040) | 1,189,782 lamports | **0** |
 
 A failed Solana transaction still pays its priority fee, but **a block-builder tip is an ordinary transfer
 instruction inside the transaction — so it is rolled back when the transaction reverts.** Tips are free to
@@ -281,7 +285,7 @@ At ~90 misses/day and ~1.1M lamports each, regime-A misses burn roughly **0.099 
 
 In the 82-transaction sample the split is clean: nonce on all 32 sells, none of the 49 buys. The full nonce
 history shows the rule is slightly broader — the nonce is used for **any contested transaction**, which
-includes the post-rug reload buy when it is being raced. `2KmNyJb4` is a nonce-based `BuyExactQuoteIn`.
+includes the post-rug reload buy when it is being raced. `2KmNyJb4RL2TE1zBayiQ2Ly74vxQNiR5mh7W9wxdG4KpKquPx2h8VdGNbJmRzLPHK2FLoJSXoiJwKj5jQfbYNiDN` is a nonce-based `BuyExactQuoteIn`.
 (That transaction is still economically a *sell*: in that pool WSOL is the base mint, and the 9,711,535
 figure it was rejecting is the pool's 9,721,261-lamport WSOL reserve. The orientation trap again.)
 
@@ -294,8 +298,8 @@ $0.02, which pins the SOL price at each date and validates the decoding.
 
 | | USWR | RICO | TripleP |
 |---|---:|---:|---:|
-| Mint | `6Rrm9FX3…` | `gtdwpNQC…` | `B5QQ7YPf…` |
-| Harvest sig | `5mEeqRHpdM` | `ajAeRdQPkL` | `4yoaKJVVjE` |
+| Mint | `6Rrm9FX3F8epYPK55ojsqHBQRng2mtB3pFE9R1pVGzMB` | `gtdwpNQCSuWBydov2uKqfEJTMJXyGtEUiJSBqbiNCWw` | `B5QQ7YPfFa48qaKNuV6i1yNMPhJA3FXygScmAxMw5gcv` |
+| Harvest sig | `5mEeqRHpdMc2rEz9aXWrgw22gbVEVVkBLzXNSELp6kBzLDEYBWpJfq8iyWERyZGfV8pdoU9bp9EpAeaHW3z8WwDa` | `ajAeRdQPkL4px5jWL14sikuJrgPbgmP4EujXnYq6QCFo8XZ66en1ygxGxKo2DbuJwPu5hVCvLrZAebD681b5yUG` | `4yoaKJVVjEHPeQifz3yNvDYuUCt7oEokCFHsm3Lu49W9VeXg2XMf9AdfGKdjvbVYmQZ59tYTaYG1LqB1sSmMJpty` |
 | Pool token reserve before | **4 raw units** | **477 raw units** | 380,327 raw units |
 | Tokens sold ÷ reserve | 1,008.8× | 1,008.5× | 99.9× |
 | **SOL captured** | **99.90%** | **99.90%** | **99.01%** |
@@ -314,12 +318,12 @@ spread:
 
 | fee % | tip % | Count | Example |
 |---:|---:|---:|---|
-| 15.01–15.02 | 5.00–5.01 | 4 | `4h8WT3md6r` |
-| 15.32–15.36 | 0 | 6 | `2D9KMBcuqd` |
-| 22.02–22.46 | 0 or 10.01 | 5 | `5dsjYXL7x7` |
-| 12.01 | 5.01 | 2 | `5w5VWVPbbo` |
-| 1.00–1.50 | 5.00 | 4 | `2wZawxkYA5` |
-| ~0.01 | 45.98–46.29 | 6 | `2y7LHLLcFL` |
+| 15.01–15.02 | 5.00–5.01 | 4 | `4h8WT3md6royMJUx1TtCnuYDefdQNQmsqiNapTQEKG2tPN9kQ3HabeamjBzGKo5q6qBHtwkTEEa3MmU2tokX89K2` |
+| 15.32–15.36 | 0 | 6 | `2D9KMBcuqdqD2CVuWzLuxF7z86xn1UNNcijDs5HaEiUXvQuR79wSUNc74JhKnineZwaqgysP2fTrWNVxJDAjjM9W` |
+| 22.02–22.46 | 0 or 10.01 | 5 | `5dsjYXL7x7f7EzNqt7Pz8DULUjBjxDisqxQUbmXu4sJoJoDaNq3sjepkVDdreUaecrqRtq7KH1Ms3BQX5mF8jR4v` |
+| 12.01 | 5.01 | 2 | `5w5VWVPbbo5oVRYC9NomopGLktPMZYMHA1VTbNQvGhhHGW5Px5AZFuenGFANPYk9Q7E5qcwXfthyTEtrm7fkPgmz` |
+| 1.00–1.50 | 5.00 | 4 | `2wZawxkYA5AvyHZr4FeBzd9twDfJWMkg95QHRdL6BexDrc8Sj5ba5wBPokrw1zLMkZx2JfRUYA8Q3x6bcuZUoh5R` |
+| ~0.01 | 45.98–46.29 | 6 | `2y7LHLLcFL6yhNjotHjV2UTw55i6UjQerde6FQwRVzRrPpjRAs8Zp3PKgBxnJ5uRFVtbcJ4HcMguBtiA4WiD73tf` |
 
 **A priority fee of exactly 15% of the harvest, paired with a tip of exactly 5%, is a hard-coded rung** —
 15.01, 15.02, 15.02, 15.01 against 5.01, 5.01, 5.01, 5.00. It is not the only rung; the ladder also has
@@ -365,7 +369,7 @@ at all, 1.17% all-in.
 | 3 | Priority fee = 15% of the SOL the sucker put in | **Confirmed exactly**, with a 5% tip alongside |
 | 4 | Cap the fee (~$20–25) to avoid waste | **Confirmed as a flat 0.32 SOL ceiling** — but the bid moves to a 4 SOL tip, so it is not a saving |
 
-**On #1.** TripleP's second dust buy (`2VFXEgciZ9`) went into a pool holding **0.00188 SOL** — a full rug,
+**On #1.** TripleP's second dust buy (`2VFXEgciZ9Ks6krdouCXzvjyB1oUVYTuFBVFnXbEgsZqBztfHZdBWigAmLA43uNceth9KE3urauEqFSq5WTiS5a3`) went into a pool holding **0.00188 SOL** — a full rug,
 not a 10× drawdown. And the purpose is not averaging down. Compare what the same 20,000-lamport ticket buys:
 
 | | Pool state | Tokens received | **Share of pool** |
@@ -379,10 +383,10 @@ trigger is the rug itself.
 
 ### One data-quality note
 
-The transaction listed as the TripleP sell, `5ZNfsjAytk…`, is **a different mint** —
+The transaction listed as the TripleP sell, `5ZNfsjAytkKDNuBiG6MTAYMc25feQqyuEQgXne2mnWbpxVG8ZjaYUBBFFEuQFRuLMHfdtXFe5d7BriNMRyndtZAi`, is **a different mint** —
 `8wfPHNKEpqKwmiEZAsDEhtX4KkpULX21heEdPVgq9M4h`, harvested 2026-08-27 for 0.559 SOL. TripleP's actual
-harvest is `4yoaKJVVjE…` (2026-06-07, 14.872 SOL), which is the one that matches the quoted $971.95 and
-$20.921. The `5ZNfsjAytk` transaction is itself a clean instance of the 15%/5% rung: fee 83,947,710 =
+harvest is `4yoaKJVVjEHPeQifz3yNvDYuUCt7oEokCFHsm3Lu49W9VeXg2XMf9AdfGKdjvbVYmQZ59tYTaYG1LqB1sSmMJpty` (2026-06-07, 14.872 SOL), which is the one that matches the quoted $971.95 and
+$20.921. The `5ZNfsjAytkKDNuBiG6MTAYMc25feQqyuEQgXne2mnWbpxVG8ZjaYUBBFFEuQFRuLMHfdtXFe5d7BriNMRyndtZAi` transaction is itself a clean instance of the 15%/5% rung: fee 83,947,710 =
 15.01% of gross, tip 27,982,569 = 5.00%, paid to Astralane.
 
 ---
@@ -392,7 +396,7 @@ $20.921. The `5ZNfsjAytk` transaction is itself a clean instance of the 15%/5% r
 These are **the same strategy at a completely different point on the frequency/size curve**. m3mx is 82
 transactions across 161 days. These two run ~5,000–6,500 transactions per day.
 
-| | m3mx `27HFmP7c…` | `Fs9RN3wA…` | `kiwiC4pg…` |
+| | m3mx `27HFmP7ccLadGswvQfvea4o3juLw75cPF4V6jWpHM3MX` | `Fs9RN3wAsuJKPbTmtX5eek1bhW5krNH8RkQxkFAtgNfR` | `kiwiC4pg5mC4N5AhpXc4Av3V6oV7Sn2p3CqB7NeHbJJ` |
 |---|---|---|---|
 | Native balance now | 99.87 SOL | 8.20 SOL | 3.94 SOL (+11.13 WSOL) |
 | Observed tx rate | 82 / 161 days | ~6,500/day | ~5,100/day |
@@ -405,17 +409,17 @@ transactions across 161 days. These two run ~5,000–6,500 transactions per day.
 finding: at these rates the seeding leg dominates overwhelmingly, and the harvest fires only on the rare
 occasion a corpse gets refilled.
 
-**`kiwiC4pg…` is the purest seeder.** All three samples are 15,000-lamport buys into **healthy** PumpSwap
+**`kiwiC4pg5mC4N5AhpXc4Av3V6oV7Sn2p3CqB7NeHbJJ` is the purest seeder.** All three samples are 15,000-lamport buys into **healthy** PumpSwap
 pools (86.9, 87.8, 89.9 SOL reserves), taking 0.000017% of pool tokens — economically meaningless as a
 trade, and only sensible as buying an option on the pool later dying. Two of them
-(`5DgZhE8ENi`, `4Qvgp41vJc`) are **in the same block on different mints**: it is indexing migrations and
+(`5DgZhE8ENiNiUzG4GAvEK872aATFTwEp7Tqaz4VHonNEERkoeeDBR8GwJqNT2Spma4uAGgHFKduMgcpF8epqPAhX`, `4Qvgp41vJcWpwHyKFxwpQEc7fa2PQfosjk3NrBFSyaHP77KWueP8u5XamwX7HiyacYryeD9aFBWSyotfE2bDSyeY`) are **in the same block on different mints**: it is indexing migrations and
 firing at every one. It uses a persistent WSOL ATA holding 11.13 SOL as its float. This explains the
 profile you described — highest lifetime PnL, lowest recent PnL: it is carrying the largest inventory of
 outstanding claims, but claims only pay when someone walks into a dead pool.
 
-**`Fs9RN3wA…` is the Meteora specialist and the one clearly *reloading corpses*.** Its 70,000-lamport
+**`Fs9RN3wAsuJKPbTmtX5eek1bhW5krNH8RkQxkFAtgNfR` is the Meteora specialist and the one clearly *reloading corpses*.** Its 70,000-lamport
 Meteora buys go into pools whose SOL reserve is already **0.00034 SOL** and **0.0239 SOL** — dead pools,
-where the ticket buys 1.5–17% of the entire token supply. And it is compounding: in `2e3AXCwMfM` its
+where the ticket buys 1.5–17% of the entire token supply. And it is compounding: in `2e3AXCwMfMc2CEojbSscTTu79BKBVwFzHksc527u7QSJ1c84UHM3xrztyrPpCavn5yFC7LeAWd99SkmyRy9uZjyk` its
 balance in one mint goes **79,807 → 9,839,597 tokens** in a single buy, reusing an existing ATA. It wraps
 SOL fresh per transaction rather than keeping a float. Its 10,000-lamport PumpSwap buys are the ordinary
 seeding leg.
@@ -434,7 +438,7 @@ rent is locked up, so the burn-and-close loop has to run continuously.
 
 ---
 
-## 5b. `Fs9RN3wA…` (aka **gNfR**) in full — the best-run of the three
+## 5b. `Fs9RN3wAsuJKPbTmtX5eek1bhW5krNH8RkQxkFAtgNfR` (aka **gNfR**) in full — the best-run of the three
 
 > Trackers that abbreviate by trailing characters render
 > `Fs9RN3wAsuJKPbTmtX5eek1bhW5krNH8RkQxkFAtgNfR` as **gNfR**. Same wallet.
@@ -444,7 +448,7 @@ harvest log the same way m3mx's does. **200 attempts over 8.89 days.**
 
 | | m3mx | **Fs9RN3** |
 |---|---:|---:|
-| Nonce account | `ED8oGfup…` | `5FX8Ymc8…` |
+| Nonce account | `ED8oGfupSeNzsNoECY81E4XUDpdUFVCB4HRJ2qtPZTmC` | `5FX8Ymc8KTcMW4NDQns9Toyei9irLKeWVvmCLoQhrgAd` |
 | Harvest attempts/day | 122 | **22.5** |
 | **Hit rate** | **26%** | **52.5%** (105 / 200) |
 | Landed harvests/day | ~32 | ~11.8 |
@@ -465,7 +469,7 @@ Other findings:
 
 - **A fifth relay — FlashBlock** (`FLaSHR4Vv7sttd6TyDF4yR1bJyAxRwWKbohDytEMu3wL`), alongside Jito,
   Astralane, Nozomi and NextBlock.
-- **Same threshold-revert mechanism.** In `5YS6C6Wc` the pool held 0.00336 SOL, unchanged before and
+- **Same threshold-revert mechanism.** In `5YS6C6Wc2faUyv4HUaW8rELrrKDTSXXqKNyhdgagr8UMts5wAZihoTjA15sRVkEvu3zGxpyNmkqBGo53GgKqk9Ma` the pool held 0.00336 SOL, unchanged before and
   after. Nothing drained it; the min_out simply wasn't met. Tip rolled back, only the 5,511,064-lamport
   fee paid.
 - **Failures arrive in bursts** — six reverts inside 128 seconds (gaps of 35s, 21s, 17s, 48s, 7s), all
@@ -474,24 +478,24 @@ Other findings:
 
 ---
 
-## 5c. `kiwiC4pg…` — fails on entry, not exit
+## 5c. `kiwiC4pg5mC4N5AhpXc4Av3V6oV7Sn2p3CqB7NeHbJJ` — fails on entry, not exit
 
 Structurally the odd one out. Over 1,000 consecutive transactions spanning 4.92 hours (**4,874 tx/day**):
 980 succeeded, 20 failed, and **all 20 carry error 6016 at instruction index 2 on a `Buy`**.
 
-6016 is `BuyMoreBaseAmountThanPoolReserves`, thrown from `constant_product.rs:21`. In `2sxGCXV2` the pool
+6016 is `BuyMoreBaseAmountThanPoolReserves`, thrown from `constant_product.rs:21`. In `2sxGCXV2fim4jbFVeqqLftMCWhWNddgDXymr6hpTjq48knCZc7EYFNCdLTZDXKfwMTM9Y8FaWTaHLAg1XMXxd7j` the pool
 held **8,172 raw token units** and 0.000027 SOL, and kiwi asked for more tokens than existed. It already
 held 103,700,179 units of that mint, so this was a *reload* of an existing claim.
 
 That is a distinct strategy: rather than a fixed dust ticket, kiwi tries to sweep a dead pool's entire
 remaining token reserve and overshoots ~2% of the time. **m3mx and Fs9RN3 fail on the exit; kiwi fails on
 the entry.** No durable nonce appears in its failures — plain `recentBlockhash`, with a tip to
-`6rYLG55Q…` that rolls back on revert.
+`6rYLG55Q9RpsPGvqdPNJs4z5WTxJVatMB8zV3WJhs5EK` that rolls back on revert.
 
 ### It does harvest — the balance trajectory settles it
 
 An earlier three-sample read here called kiwi "almost pure seeding." That was wrong. Its WSOL ATA
-`HTzW2E5H…` moves the other way:
+`HTzW2E5HrUfrwjcUSsThM6EwX5mM2T5fUYhgvmNmJxia` moves the other way:
 
 | ts 1788015342 | ts 1788024826 | Δ |
 |---:|---:|---:|
@@ -591,12 +595,12 @@ closely. The claim counts and rent figures are measured.
 
 ### The competitor population per pool
 
-Enumerating every holder of one harvested mint (`3e7n5iYW…`, via `getProgramAccounts` filtered on the
+Enumerating every holder of one harvested mint (`3e7n5iYW9vHkyuDZvadjs4ZtM5x95NL91wbrGcijcevz`, via `getProgramAccounts` filtered on the
 mint at offset 0 — permitted, since that filter *wants* 32 bytes) returns **113 token accounts**: the pool
 vault plus **112 distinct claimants on a single dead pool**.
 
-Two are identifiable immediately: `AzTe3NG7…` is `3C7dHgR53b…`'s ATA and `7VRF7Wy4…` is
-`FURrDAcbpH…`'s — both from the slot-442646122 swarm. The competitive field is not three wallets; it is
+Two are identifiable immediately: `AzTe3NG7on7mFmS5PkWtQcMEpsGA9srbvc3Z9Fr44GqU` is `3C7dHgR53bF3P2YSzaDaW57EZfh8CHu7uTen6eEEiuqe`'s ATA and `7VRF7Wy4qp6jKwq5u1MYei6Y4wRCAJubkg3JmGCveR3s` is
+`FURrDAcbpHQVW3x4wzzNNKaJuQPqYN6aKHzbb211Dnzn`'s — both from the slot-442646122 swarm. The competitive field is not three wallets; it is
 of order a hundred per pool.
 
 **Important caveat:** that 112 mixes two populations that cannot be separated from holder data alone —
@@ -605,7 +609,7 @@ worthless bag. The number bounds the field from above, not the active-harvester 
 
 ### What can be stated firmly
 
-Operators identified by direct observation: **five** — m3mx, Fs9RN3, kiwi, `FURrDAcbpH…`, `3C7dHgR53b…`.
+Operators identified by direct observation: **five** — m3mx, Fs9RN3, kiwi, `FURrDAcbpHQVW3x4wzzNNKaJuQPqYN6aKHzbb211Dnzn`, `3C7dHgR53bF3P2YSzaDaW57EZfh8CHu7uTen6eEEiuqe`.
 Two of those five surfaced incidentally from examining a *single slot*, which is itself evidence that the
 population is much larger than the profiled set.
 
@@ -644,7 +648,7 @@ Method 2 is also exactly the detection primitive a warning system would need, wh
 
 Sampling claimants at random from one dead pool's holder list and sizing each claim book (§5e method)
 identifies operators directly. **All five previously-known operators hold a claim on that single pool** —
-m3mx (`6u7BWwaZ…`), gNfR (`H6515R7E…`), kiwi (`6E3wUNXE…`), `FURrDAcbpH…` and `3C7dHgR53b…` — despite
+m3mx (`6u7BWwaZvG48UxbDQe9yuL88Lg1gktzXVVyG77CAKuhX`), gNfR (`H6515R7Eq8rQcPvnAdLi483FrQrNKGqAnHLAbvWMDLqB`), kiwi (`6E3wUNXEgUjrFC9WDptBhAvGouHVLCZXDBzUcDkk6kx1`), `FURrDAcbpHQVW3x4wzzNNKaJuQPqYN6aKHzbb211Dnzn` and `3C7dHgR53bF3P2YSzaDaW57EZfh8CHu7uTen6eEEiuqe` — despite
 having been found by five unrelated routes.
 
 Three unknown claimants sampled at random:
@@ -655,14 +659,14 @@ Three unknown claimants sampled at random:
 | `HU23r7UoZbqTUuh3vA7emAGztFtqwTeVips789vqxxBw` | 977 | **250,112** | **510.0 SOL** |
 | `ViLLaKMmnMfFq12zeW58JAaWFqLE4B8TpSzEUhRDyVu` | 1 | ~256 | ~0.5 SOL |
 
-**Two of three random picks are larger than any wallet in this report.** `DSN3j1yk` and `HU23r7Uo` each
+**Two of three random picks are larger than any wallet in this report.** `DSN3j1ykL3obAVNv7ZX49VsFCPe4LqzxHnmtLiPwY6xg` and `HU23r7UoZbqTUuh3vA7emAGztFtqwTeVips789vqxxBw` each
 hold ~250,000 claims — 40% more than kiwi, and 11× m3mx or gNfR.
 
 Their book sizes agree to **within 0.1%** (978 vs 977 in the same bucket). That is not coincidence at this
 scale: it reads as one operator running a matched pair of wallets, or two deployments of the same bot with
 identical seeding parameters.
 
-`ViLLaKMm` is a vanity address with only ~256 accounts — present in the pool, but two to three orders of
+`ViLLaKMmnMfFq12zeW58JAaWFqLE4B8TpSzEUhRDyVu` is a vanity address with only ~256 accounts — present in the pool, but two to three orders of
 magnitude below the industrial operators. Some claimants are small players or genuine bagholders; the
 sample cannot yet give a clean split.
 
@@ -679,7 +683,7 @@ larger than all of them took three random draws.
 
 ### Pool-side sampling mostly measures bot chatter
 
-The Meteora pool vault `B9kms7Bz…` shows **68 transactions across 16.4 hours in four tight bursts**, with
+The Meteora pool vault `B9kms7BzDeGYjP4MPwyiKYoE5Le5hjoWTZZMzV96Zjvq` shows **68 transactions across 16.4 hours in four tight bursts**, with
 6.6- and 9.8-hour silences between them. Decoding one burst in full (§4b) found two dust buys of 0.0001
 SOL and a pile of slippage misfires — roughly **0.0001 SOL of real flow across ~31 transactions**.
 
@@ -689,8 +693,8 @@ orders of magnitude.
 
 ### The three-way race, resolved
 
-`5FZECa4k` is gNfR's winning transaction at slot **442634543** — the same mint (`8TMnj6UJ…`), the same
-pool (`6dkjWoD5…`), the same block in which m3mx failed 6040 and kiwi failed 6016 three times.
+`5FZECa4kdhS2PX5MMD68KjUqPBZRkehDXrNxyh29sF9wLKycgMYmJ37PStBzjq3LH8r8KNu8L2qcJ8u8Mc9nZjW1` is gNfR's winning transaction at slot **442634543** — the same mint (`8TMnj6UJqdTWK9E3qQxBWPEeZoUnkgcVnEDosbN94X4X`), the same
+pool (`6dkjWoD5irKkCdFdMXZKbAm13Kp8LUG6AFXcREZK3cqK`), the same block in which m3mx failed 6040 and kiwi failed 6016 three times.
 
 | | |
 |---|---:|
@@ -749,7 +753,7 @@ thousands of dust buys and recycle ATA rent continuously just to keep the claims
 ## 7. Data files
 
 - `data/m3mx-transactions.tsv` — all 82 reconstructed transactions, 18 columns (see `data/schema.txt`).
-- `data/other-wallets-samples.tsv` — the 6 sampled transactions from `Fs9RN3wA…` and `kiwiC4pg…`.
+- `data/other-wallets-samples.tsv` — the 6 sampled transactions from `Fs9RN3wAsuJKPbTmtX5eek1bhW5krNH8RkQxkFAtgNfR` and `kiwiC4pg5mC4N5AhpXc4Av3V6oV7Sn2p3CqB7NeHbJJ`.
 - `data/harvest-attempts.tsv` — hit-rate sample from the durable nonce account.
 - `data/big-wins.tsv` — the USWR / RICO / TripleP legs, decoded.
 - `data/schema.txt` — column definitions.
