@@ -309,6 +309,13 @@ edge decomposes into three parts, in ascending order of difficulty:
 Parts 1 and 2 are engineering. Part 3 is where the profit actually goes: **17.1% of everything they take
 out is paid straight to validators and block builders**, and on the contested ones, nearly half.
 
+And it is a crowded race, not a private one. **74% of harvest attempts revert on slippage because a
+competing bot got to the pool first.** The winning trades in the table above are the visible quarter of the
+activity. Anyone evaluating this strategy from a filtered list of profitable mints — which is how it is
+usually presented — is looking at the survivors and will materially overestimate the edge. The honest
+version is: ~122 attempts/day, ~32 of which land, funded by a seeding operation that has to spray
+thousands of dust buys and recycle ATA rent continuously just to keep the claims outstanding.
+
 ---
 
 ## 7. Data files
