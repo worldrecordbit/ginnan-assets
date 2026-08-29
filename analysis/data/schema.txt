@@ -1,0 +1,19 @@
+recs.tsv columns (tab separated):
+1 sig            transaction signature
+2 mint           token mint
+3 ts             blockTime (unix)
+4 side           BUY | SELL | OTHER
+5 fee            tx fee lamports (base+priority) paid by wallet
+6 nat_d          native SOL lamport delta of wallet (incl fee & rent)
+7 wsol_d         wallet WSOL token-account lamport delta
+8 tok_d          wallet token delta (raw units)
+9 dec            token decimals
+10 pool          pool / pair address (owner of vaults)
+11 base_pre      pool base(token) reserve pre (raw)
+12 base_post     pool base reserve post (raw)
+13 quote_pre     pool quote(WSOL) reserve pre (lamports)
+14 quote_post    pool quote reserve post (lamports)
+15 prog          AMM program short name
+16 nonce         1 if durable-nonce advanceNonce used else 0
+17 rent_d        lamports moved into/out of rent-exempt ATA (recoverable), + = locked up
+18 tip	jito tip lamports (included in nat_d)
