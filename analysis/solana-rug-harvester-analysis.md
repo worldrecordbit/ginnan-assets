@@ -584,6 +584,59 @@ closely. The claim counts and rent figures are measured.
 
 ---
 
+## 5f. Sizing the market
+
+### The competitor population per pool
+
+Enumerating every holder of one harvested mint (`3e7n5iYW…`, via `getProgramAccounts` filtered on the
+mint at offset 0 — permitted, since that filter *wants* 32 bytes) returns **113 token accounts**: the pool
+vault plus **112 distinct claimants on a single dead pool**.
+
+Two are identifiable immediately: `AzTe3NG7…` is `3C7dHgR53b…`'s ATA and `7VRF7Wy4…` is
+`FURrDAcbpH…`'s — both from the slot-442646122 swarm. The competitive field is not three wallets; it is
+of order a hundred per pool.
+
+**Important caveat:** that 112 mixes two populations that cannot be separated from holder data alone —
+claim-seeding harvesters, and ordinary buyers who bought during the token's life and are now holding a
+worthless bag. The number bounds the field from above, not the active-harvester count.
+
+### What can be stated firmly
+
+Operators identified by direct observation: **five** — m3mx, Fs9RN3, kiwi, `FURrDAcbpH…`, `3C7dHgR53b…`.
+Two of those five surfaced incidentally from examining a *single slot*, which is itself evidence that the
+population is much larger than the profiled set.
+
+Combined economics of the three profiled wallets, using m3mx's measured 17.1% fee-and-tip load to gross
+up from net:
+
+| | 30 days | per day |
+|---|---:|---:|
+| Net to operators | 170 SOL | 5.67 SOL |
+| **Gross extracted from buyers** | **~205 SOL** | **~6.84 SOL** |
+| Paid to validators / block builders | ~35 SOL | ~1.17 SOL |
+
+At m3mx's mean landed harvest of 0.188 SOL, ~6.84 SOL/day implies roughly **36 victim events per day**
+from these three wallets alone.
+
+### What cannot
+
+Scaling to a total market requires the count of *active harvesters*, which I have bounded only loosely.
+The honest statement is a floor, not an estimate: **the three profiled wallets extract ~205 SOL/30d gross,
+and they are demonstrably a minority of the field** — they lose 74% / 52.5% of their contested attempts,
+and in the one fully-resolved three-way race (slot 442634543) two of the three lost to the third.
+
+Tightening this needs one of:
+
+1. **Sweep the nonce-account population.** Every operator observed uses a durable nonce for contested
+   transactions. Enumerating nonce accounts whose transactions touch PumpSwap/Meteora swap instructions
+   would give a near-complete operator census.
+2. **Sample dead pools directly** and measure SOL inflow-then-drain events, which counts the pot without
+   needing to identify who takes it — the cleanest measurement, and the one I would do next.
+
+Method 2 is also exactly the detection primitive a warning system would need, which is worth noting.
+
+---
+
 ## 6. What this is, plainly
 
 This is a **latency race against retail buyers who wander into rugged pools**. It is not arbitrage and it
