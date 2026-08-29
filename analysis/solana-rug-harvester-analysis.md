@@ -184,6 +184,70 @@ reclaimed via `Burn` + `CloseAccount` when a position is written off — see `4r
 
 ---
 
+## 4b. Hit rate: 74% of harvest attempts fail
+
+**The 82 transactions supplied were pre-filtered to winners.** The complete attempt log is recoverable,
+because only contested transactions advance the durable nonce — so the nonce account's signature history
+*is* the harvest attempt log. `ED8oGfupSeNzsNoECY81E4XUDpdUFVCB4HRJ2qtPZTmC` confirms
+`authority: 27HFmP7ccLadGswvQfvea4o3juLw75cPF4V6jWpHM3MX`.
+
+Last 100 nonce-advancing transactions, spanning 19.7 hours:
+
+| Outcome | Count | Meaning |
+|---|---:|---|
+| **Success** | **26** | Harvest landed |
+| `6002 ExceededSlippage` (Meteora cp-amm) | 41 | Beaten to the pool |
+| `6040 BuySlippageBelowMinBaseAmountOut` (PumpSwap) | 27 | Beaten to the pool |
+| `6004` | 5 | — |
+| `ProgramFailedToComplete` | 1 | — |
+
+- **Hit rate: 26%.** ~122 attempts/day, ~32 landed harvests/day.
+- The reverts are unambiguous: the program computed a smaller output than the transaction's
+  `min_out` and rolled back. `2KmNyJb4` logs it explicitly — `Left: 9711535, Right: 10000000`. Someone
+  else took the SOL first.
+
+This means the strategy is **not** a monopoly on dead pools. Three out of four times, a competing bot
+gets there first. The 4.92 SOL net in the table above is the winning tail of a much noisier process.
+
+### Why misses are cheap — and why that dictates the fee strategy
+
+Two sampled failures:
+
+| Signature | Fee paid | Tip paid |
+|---|---:|---:|
+| `5CpN7rYZ…` (Meteora, 6002) | 1,000,001 lamports | **0** |
+| `2KmNyJb4…` (PumpSwap, 6040) | 1,189,782 lamports | **0** |
+
+A failed Solana transaction still pays its priority fee, but **a block-builder tip is an ordinary transfer
+instruction inside the transaction — so it is rolled back when the transaction reverts.** Tips are free to
+attempt; priority fees are not.
+
+That asymmetry explains the two fee regimes visible in the successful harvests, which otherwise look
+irrational:
+
+| Regime | Priority fee | Tip | Paid on a miss? |
+|---|---:|---:|---|
+| A — priority-fee bidding | 1.0M–90.7M lamports | 0 | **Yes** |
+| B — tip bidding | ~6,000 lamports | up to 66.3M (46% of gross) | **No** |
+
+Regime B is strictly better when the win probability is low, and at a 26% hit rate it usually is. Paying
+46% of the harvest to a builder *only when you win* beats paying 15% of it to the network *every time you
+try*. The presence of both regimes, chosen per transaction, is the clearest sign of a tuned system rather
+than a fixed script.
+
+At ~90 misses/day and ~1.1M lamports each, regime-A misses burn roughly **0.099 SOL/day** — small against
+~32 landed harvests, but it is the reason the tip-bidding path exists at all.
+
+### One correction to the nonce claim
+
+In the 82-transaction sample the split is clean: nonce on all 32 sells, none of the 49 buys. The full nonce
+history shows the rule is slightly broader — the nonce is used for **any contested transaction**, which
+includes the post-rug reload buy when it is being raced. `2KmNyJb4` is a nonce-based `BuyExactQuoteIn`.
+(That transaction is still economically a *sell*: in that pool WSOL is the base mint, and the 9,711,535
+figure it was rejecting is the pool's 9,721,261-lamport WSOL reserve. The orientation trap again.)
+
+---
+
 ## 5. The other two wallets
 
 These are **the same strategy at a completely different point on the frequency/size curve**. m3mx is 82
@@ -251,6 +315,7 @@ out is paid straight to validators and block builders**, and on the contested on
 
 - `data/m3mx-transactions.tsv` — all 82 reconstructed transactions, 18 columns (see `data/schema.txt`).
 - `data/other-wallets-samples.tsv` — the 6 sampled transactions from `Fs9RN3wA…` and `kiwiC4pg…`.
+- `data/harvest-attempts.tsv` — hit-rate sample from the durable nonce account.
 - `data/schema.txt` — column definitions.
 
 Every row was derived from raw `getTransaction` output; nothing is inferred from a block explorer's
