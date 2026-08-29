@@ -206,8 +206,47 @@ Last 100 nonce-advancing transactions, spanning 19.7 hours:
   `min_out` and rolled back. `2KmNyJb4` logs it explicitly — `Left: 9711535, Right: 10000000`. Someone
   else took the SOL first.
 
-This means the strategy is **not** a monopoly on dead pools. Three out of four times, a competing bot
-gets there first. The 4.92 SOL net in the table above is the winning tail of a much noisier process.
+### Correction: most of these are threshold reverts, not lost races
+
+My first reading of these reverts — that a competitor reached the pool first — is **wrong for the two
+failures I actually opened**, and the correct explanation is more interesting.
+
+In `5CpN7rYZ` the pool's WSOL reserve is `2,262,876` lamports **both before and after** the failed
+transaction. Nobody drained it. Tracing the pool vault `B9kms7Bz…` through that slot confirms it: the
+next twelve transactions on the vault are all *inflows*. The pool simply never held enough SOL to satisfy
+the sell's `min_out`.
+
+`2KmNyJb4` logs the arithmetic outright — `Left: 9711535, Right: 10000000`. The pool held 0.0097 SOL; the
+transaction demanded a minimum of 0.0100 SOL out. It missed by **3%**.
+
+So m3mx carries a **min_out floor of roughly 0.01 SOL** and fires its pre-signed sell on *any* detected
+inflow. When the inflow is too small, the transaction reverts by design rather than harvesting a pot too
+small to cover the fee. That reframes the 74%: it is not primarily a lost race, it is a **deliberately
+loose trigger with a hard floor**, and most reverts are false triggers on inflows that were never worth
+taking.
+
+Both mechanisms are presumably present in the full 74% — I opened two of them, and both were threshold
+reverts. The lost-race share is unmeasured.
+
+### What is actually triggering the false fires
+
+The inflows setting off m3mx's trigger are, in large part, **other harvesters seeding the same corpse**.
+Two transactions from that swarm on pool `3e7n5iYW…`:
+
+| Wallet | Sig | Fee | SOL in | Route | Notes |
+|---|---|---:|---:|---|---|
+| `FURrDAcbpH…` | `2vvnJZURpg` | 20,000 | 0.0001 | direct | holds a 6.42 SOL WSOL float |
+| `3C7dHgR53b…` | `2psakNhHEy` | 6,000 | 0.0001 | **Jupiter** | wraps and closes WSOL each time |
+
+Both are dust buys of exactly **0.0001 SOL** — 5× m3mx's 0.00002 ticket — into a pool holding 0.0022 SOL.
+Neither is a harvest. They are claim-seeding, the same first leg m3mx runs, from at least two other
+operators, and one of them routes through Jupiter rather than hitting the AMM directly.
+
+The picture that emerges is a **feedback loop**: harvesters seeding dead pools generate exactly the
+small inflows that trigger other harvesters' pre-signed sells, which then revert on the floor. A
+meaningful share of the 122 attempts/day is bots setting each other off.
+
+The 4.92 SOL net in the table above remains the winning tail of a much noisier process.
 
 ### Why misses are cheap — and why that dictates the fee strategy
 
