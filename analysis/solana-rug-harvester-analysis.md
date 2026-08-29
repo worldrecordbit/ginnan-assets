@@ -640,6 +640,89 @@ Method 2 is also exactly the detection primitive a warning system would need, wh
 
 ---
 
+## 5g. Operator census
+
+Sampling claimants at random from one dead pool's holder list and sizing each claim book (§5e method)
+identifies operators directly. **All five previously-known operators hold a claim on that single pool** —
+m3mx (`6u7BWwaZ…`), gNfR (`H6515R7E…`), kiwi (`6E3wUNXE…`), `FURrDAcbpH…` and `3C7dHgR53b…` — despite
+having been found by five unrelated routes.
+
+Three unknown claimants sampled at random:
+
+| Wallet | Bucket | **Est. claims** | **Rent locked** |
+|---|---:|---:|---:|
+| `DSN3j1ykL3obAVNv7ZX49VsFCPe4LqzxHnmtLiPwY6xg` | 978 | **250,368** | **510.6 SOL** |
+| `HU23r7UoZbqTUuh3vA7emAGztFtqwTeVips789vqxxBw` | 977 | **250,112** | **510.0 SOL** |
+| `ViLLaKMmnMfFq12zeW58JAaWFqLE4B8TpSzEUhRDyVu` | 1 | ~256 | ~0.5 SOL |
+
+**Two of three random picks are larger than any wallet in this report.** `DSN3j1yk` and `HU23r7Uo` each
+hold ~250,000 claims — 40% more than kiwi, and 11× m3mx or gNfR.
+
+Their book sizes agree to **within 0.1%** (978 vs 977 in the same bucket). That is not coincidence at this
+scale: it reads as one operator running a matched pair of wallets, or two deployments of the same bot with
+identical seeding parameters.
+
+`ViLLaKMm` is a vanity address with only ~256 accounts — present in the pool, but two to three orders of
+magnitude below the industrial operators. Some claimants are small players or genuine bagholders; the
+sample cannot yet give a clean split.
+
+**Rent immobilised across the six identified operators: ~1,490 SOL.** The three wallets originally under
+study account for 468 SOL of that — under a third.
+
+The census is not exhaustive and the sample is small (3 of 112). What it establishes is directional and
+firm: **the profiled wallets are mid-sized players, not the top of the field**, and finding operators
+larger than all of them took three random draws.
+
+---
+
+## 5h. What the pot actually looks like
+
+### Pool-side sampling mostly measures bot chatter
+
+The Meteora pool vault `B9kms7Bz…` shows **68 transactions across 16.4 hours in four tight bursts**, with
+6.6- and 9.8-hour silences between them. Decoding one burst in full (§4b) found two dust buys of 0.0001
+SOL and a pile of slippage misfires — roughly **0.0001 SOL of real flow across ~31 transactions**.
+
+Dead pools are not quietly accumulating victim deposits. They sit silent, and most activity on them is
+harvesters seeding and misfiring at each other. Counting transactions on dead pools overstates the pot by
+orders of magnitude.
+
+### The three-way race, resolved
+
+`5FZECa4k` is gNfR's winning transaction at slot **442634543** — the same mint (`8TMnj6UJ…`), the same
+pool (`6dkjWoD5…`), the same block in which m3mx failed 6040 and kiwi failed 6016 three times.
+
+| | |
+|---|---:|
+| Pool SOL before | **0.010000002** |
+| Pool SOL after | 0.000026994 |
+| **Captured by gNfR** | **0.009973 SOL — 99.73%** |
+| Tokens sold ÷ reserve | 370× (8,155 units against 22) |
+| Priority fee | 1,201,762 |
+| FlashBlock tip | 526,575 |
+| **Fee + tip as % of gross** | **17.3%** |
+| **Net to gNfR** | **+0.00824 SOL** |
+
+The 17.3% cost load matches m3mx's independently-measured 17.1% almost exactly.
+
+**Four bots across three operators fought over ten thousandths of a SOL.** m3mx paid a priority fee to
+lose. kiwi burned three transactions. gNfR netted about two dollars.
+
+Note the pool held exactly `10,000,002` lamports — just over m3mx's 0.01 SOL `min_out` floor identified in
+§4b. That floor is calibrated to this: the modal opportunity sits right at 0.01 SOL.
+
+### The distribution is extremely skewed
+
+A randomly-drawn landed harvest is **0.00997 SOL**. gNfR's ~90 SOL/30d across ~11.8 landed harvests/day
+implies a *mean* near 0.25 SOL — 25× the random draw. Both facts hold only if the distribution is
+dominated by rare large hits, which is exactly what §4c shows: 37.77, 27.91 and 14.87 SOL single events.
+
+So the business is **mostly worthless races punctuated by occasional large captures**, and the curated
+"wins" list that started this analysis sampled only the tail. Any economic model built on the mean harvest
+size will be wrong; the variance is the strategy.
+
+---
+
 ## 6. What this is, plainly
 
 This is a **latency race against retail buyers who wander into rugged pools**. It is not arbitrage and it
