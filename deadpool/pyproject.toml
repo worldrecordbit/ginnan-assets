@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "deadpool"
+version = "1.0.0"
+description = "Detect Solana AMM pools whose reserves have been withdrawn and whose next deposit is recoverable by an existing token holder."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+keywords = ["solana", "amm", "defi", "security", "liquidity"]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Topic :: Security",
+]
+# No runtime dependencies, by design: the detector must be droppable into a
+# wallet or router without pulling a dependency tree behind it.
+dependencies = []
+
+[project.scripts]
+deadpool = "deadpool.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+deadpool = ["evidence/*.tsv", "evidence/*.txt"]
+
+[tool.setuptools]
+include-package-data = true
